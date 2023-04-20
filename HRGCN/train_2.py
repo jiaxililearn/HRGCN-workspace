@@ -198,6 +198,7 @@ class Train2(object):
 
         for iter_i in range(self.train_iter_n):
             self.model.train()
+            self.model.dataset = self.dataset
             print("iteration " + str(iter_i) + " ...")
 
             if self.sampling_size is None:

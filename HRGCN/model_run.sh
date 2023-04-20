@@ -12,8 +12,8 @@ python main.py \
 --num_train 820 \
 --source_types 0,1,2 \
 --sampling_size 820 \
---batch_s 82 \
---mini_batch_s 82 \
+--batch_s 41 \
+--mini_batch_s 41 \
 --unzip False \
 --s3_stage True \
 --split_data False \
