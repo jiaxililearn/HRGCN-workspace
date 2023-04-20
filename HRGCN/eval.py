@@ -69,6 +69,6 @@ def evaluate_node(model, data_root_dir, ignore_weight, include_edge_type, device
     avg_ap = sum(ap_list) / len(ap_list)
 
     print(f"\tAverage AUC:{avg_auc}; Average AP:{avg_ap};")
-    print(f"\tMax AUC:{max(roc_list)}; Max AP:{max(avg_ap)};")
-    print(f"\tMin AUC:{min(roc_list)}; Min AP:{min(roc_list)};")
+    print(f"\tMax AUC:{max(roc_list)}; Max AP:{max(ap_list)};")
+    print(f"\tMin AUC:{min(roc_list)}; Min AP:{min(ap_list)};")
     return avg_auc, avg_ap, -1, -1

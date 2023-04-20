@@ -11,10 +11,9 @@ python main.py \
 --num_edge_types 11 \
 --num_train 820 \
 --source_types 0,1,2 \
---sampling_size 64 \
---batch_s 32 \
---mini_batch_s 32 \
---eval_size 10 \
+--sampling_size 820 \
+--batch_s 82 \
+--mini_batch_s 82 \
 --unzip False \
 --s3_stage True \
 --split_data False \
