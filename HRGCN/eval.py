@@ -1,4 +1,5 @@
 from tqdm import tqdm
+import numpy as np
 import torch
 from sklearn.metrics import roc_curve, auc, precision_recall_curve
 from data_loader import HetGCNEventGraphDataset
@@ -45,6 +46,10 @@ def evaluate_node(model, data_root_dir, ignore_weight, include_edge_type, device
         _mask = _node_labels <= 1
         node_labels = _node_labels[_mask]
         node_scores = svdd_score[_mask]
+
+        # TODO: Offsetting to have positive number when the label has no positive value
+        node_labels = np.append(node_labels, [1])
+        node_scores = np.append(node_scores, [1.0])
 
         # Calc svdd score node level
 
