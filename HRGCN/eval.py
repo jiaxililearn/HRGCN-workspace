@@ -24,28 +24,31 @@ def evaluate_node(model, data_root_dir, ignore_weight, include_edge_type, device
     for i in range(dataset_size):
         # 1. get node embeddings
         _, _, _node_embed = model([i], train=False, return_node_embed=True)
+        _node_embed = _node_embed[0]
 
-        _node_labels = (
-            torch.from_numpy(
-                valid_dataset.node_feature_df[
-                    valid_dataset.node_feature_df.trace_id == i
-                ]["y"].values
-            )
-            .float()
-            .to(device)
+        svdd_score = (
+            torch.mean(torch.square(_node_embed - model.svdd_center), 1)
+            .cpu()
+            .detach()
+            .numpy()
         )
+
+        _node_labels = valid_dataset.node_feature_df[
+            valid_dataset.node_feature_df.trace_id == i
+        ]["y"].values
+
         # 2. filter on0/1 nodes
-        _mask = (_node_labels <= 1)
+        _mask = _node_labels <= 1
         node_labels = _node_labels[_mask]
-        node_embed = _node_embed[0][_mask]
+        node_scores = svdd_score[_mask]
 
         # Calc svdd score node level
-        svdd_score = torch.mean(torch.square(node_embed - model.svdd_center), 1)
+
         # 3. Evaluate on AUC and AP between these
 
-        fpr, tpr, roc_thresholds = roc_curve(node_labels, svdd_score)
+        fpr, tpr, roc_thresholds = roc_curve(node_labels, node_scores)
         precision, recall, pr_thresholds = precision_recall_curve(
-            node_labels, svdd_score
+            node_labels, node_scores
         )
         roc_auc = auc(fpr, tpr)
         ap = auc(recall, precision)
