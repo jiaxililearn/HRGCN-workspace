@@ -1,10 +1,17 @@
+sudo update-alternatives --config gcc
+
+sudo ln -sfT /usr/local/cuda-10.2/ /usr/local/cuda
+pip install torch==1.9.1
+pip install torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-1.9.1+cu102.html
+
+
 python main.py \
 --sagemaker False \
 --num_node_types 3 \
 --num_edge_types 11 \
 --num_train 820 \
 --source_types 0,1,2 \
---sampling_size 160 \
+--sampling_size 64 \
 --batch_s 32 \
 --mini_batch_s 32 \
 --eval_size 10 \
@@ -29,6 +36,6 @@ python main.py \
 --weighted_loss ignore \
 --loss_weight 0 \
 --eval_method svdd \
---model_path ../model_save_tralog_gcn11_all \
+--model_path ../models/model_save_dgraph_base \
 --data_path ../dataset \
 --job_prefix test

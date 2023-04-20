@@ -22,7 +22,6 @@ class HetGCNConv_11(MessagePassing):
         num_src_types=2,
         num_edge_types=1,
         ablation=None,
-        return_node_embed=False,
     ):
         super().__init__()
         self.in_channels = in_channels
@@ -33,7 +32,6 @@ class HetGCNConv_11(MessagePassing):
         self.num_hidden_conv_layers = num_hidden_conv_layers
         self.num_edge_types = num_edge_types
         self.ablation = ablation
-        self.return_node_embed = return_node_embed
 
         if self.ablation == 'no-edge-relation':
             self.num_edge_types = 1
@@ -87,7 +85,7 @@ class HetGCNConv_11(MessagePassing):
                     lin.reset_parameters()
         self.fc_het_layer.reset_parameters()
 
-    def forward(self, graph_data, source_types=[0, 1]):
+    def forward(self, graph_data, source_types=[0, 1], return_node_embed=False):
         """
         forward method
         """
@@ -160,7 +158,7 @@ class HetGCNConv_11(MessagePassing):
             * self.num_edge_types,
         )
 
-        if not self.return_node_embed:
+        if not return_node_embed:
             # max pooling
             combined_het_embedding, _ = torch.max(combined_het_embedding, dim=0)
             # print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
