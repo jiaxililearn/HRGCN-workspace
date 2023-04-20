@@ -18,6 +18,9 @@ def evaluate_node(model, data_root_dir, ignore_weight, include_edge_type, device
 
     dataset_size = valid_dataset.size()
 
+    roc_list = []
+    ap_list = []
+
     model.eval()
     # set validation dataset
     model.dataset = valid_dataset
@@ -53,4 +56,13 @@ def evaluate_node(model, data_root_dir, ignore_weight, include_edge_type, device
         roc_auc = auc(fpr, tpr)
         ap = auc(recall, precision)
 
-        return roc_auc, ap, -1, -1
+        roc_list.append(roc_auc)
+        ap_list.append(ap)
+
+    avg_auc = sum(roc_list) / len(roc_list)
+    avg_ap = sum(ap_list) / len(ap_list)
+
+    print(f"\tAverage AUC:{avg_auc}; Average AP:{avg_ap};")
+    print(f"\tMax AUC:{max(roc_list)}; Max AP:{max(avg_ap)};")
+    print(f"\tMin AUC:{min(roc_list)}; Min AP:{min(roc_list)};")
+    return avg_auc, avg_ap, -1, -1
