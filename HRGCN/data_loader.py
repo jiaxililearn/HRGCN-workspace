@@ -98,6 +98,9 @@ class HetGCNEventGraphDataset(Dataset):
             g_het = json.load(fin)
         return g_het
 
+    def size(self):
+        return self.node_feature_df['trace_id'].unique().shape[0]
+
     def __getitem__(self, gid):
         """
         get graph data on graph id

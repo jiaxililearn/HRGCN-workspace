@@ -15,6 +15,8 @@ import pickle
 from data_loader import HetGCNEventGraphDataset
 from graph_augmentation import GraphAugmentator
 
+from eval import evaluate_node
+
 import boto3
 
 
@@ -78,6 +80,8 @@ class Train2(object):
 
         self.source_types = None
         self.main_loss = main_loss
+        self.ignore_weight = ignore_weight
+        self.include_edge_type = True if kwargs["num_edge_types"] > 1 else False
         # self.n_known_abnormal = max(int(sampling_size * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
         # self.batch_n_known_abnormal = max(int(batch_s * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
 
@@ -101,7 +105,7 @@ class Train2(object):
                     node_type_txt=f"{self.data_root_dir}/train_node_types.txt",
                     edge_ratio_csv=None,
                     ignore_weight=ignore_weight,
-                    include_edge_type=True if kwargs["num_edge_types"] > 1 else False,
+                    include_edge_type=self.include_edge_type,
                     edge_ratio_percentile=None,
                     # n_known_abnormal=self.n_known_abnormal,
                     # trace_info_csv=f"{self.data_root_dir}/trace_info.csv",
@@ -316,8 +320,14 @@ class Train2(object):
                 # Evaluate the model
                 print("Evaluating Model ..")
                 # TODO: read valid set for eval
-                roc_auc, ap, fc_roc_auc, fc_ap = self.eval_model()  # eval_gid_list)
-                eval_list.append([roc_auc, ap])
+                roc_auc, ap, fc_roc_auc, fc_ap = evaluate_node(
+                    self.model,
+                    self.data_root_dir,
+                    self.ignore_weight,
+                    self.include_edge_type,
+                    self.device,
+                )  # self.eval_model(eval_gid_list)
+                eval_list.append([roc_auc, ap, fc_roc_auc, fc_ap])
 
                 # Save Model
                 torch.save(
@@ -335,7 +345,7 @@ class Train2(object):
                     batch_loss_list = []
 
                 with open(f"{self.model_path}/eval_metrics.txt", "w") as fout:
-                    for roc_auc, ap in eval_list:
+                    for roc_auc, ap, fc_roc_auc, fc_ap in eval_list:
                         fout.write(f"{roc_auc} {ap} {fc_roc_auc} {fc_ap}\n")
 
                 # sync to s3 for intermediate save

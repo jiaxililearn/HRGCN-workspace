@@ -25,7 +25,7 @@ class HetGCN_11(nn.Module):
         num_edge_types=1,
         augment_func=None,
         main_loss=None,
-        embed_activation='relu',
+        embed_activation="relu",
         # batch_n_known_abnormal=None,
         weighted_loss=None,
         loss_weight=0.5,
@@ -83,7 +83,7 @@ class HetGCN_11(nn.Module):
                 num_hidden_conv_layers=num_hidden_conv_layers,
                 num_src_types=len(source_types),
                 num_edge_types=num_edge_types,
-                ablation=ablation
+                ablation=ablation,
             )
 
         else:
@@ -92,14 +92,13 @@ class HetGCN_11(nn.Module):
         print(f"num_hidden_conv_layers: {num_hidden_conv_layers}")
 
         self.final_fc = nn.Sequential(
-            nn.Linear(self.out_embed_d, 1, bias=True),
-            nn.Sigmoid()
+            nn.Linear(self.out_embed_d, 1, bias=True), nn.Sigmoid()
         )
 
         # Others
-        if embed_activation == 'relu':
+        if embed_activation == "relu":
             self.embed_act = nn.LeakyReLU()
-        elif embed_activation == 'sigmoid':
+        elif embed_activation == "sigmoid":
             self.embed_act = nn.Sigmoid()
 
         # loss
@@ -124,7 +123,7 @@ class HetGCN_11(nn.Module):
                 if m.bias is not None:
                     m.bias.data.fill_(0.1)
 
-    def forward(self, gid_batch, train=True):
+    def forward(self, gid_batch, train=True, return_node_embed=False):
         """
         forward propagate based on gid batch
         """
@@ -180,20 +179,40 @@ class HetGCN_11(nn.Module):
 
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
-        _out = torch.zeros(len(combined_data), 1, device=self.device)
+        if not return_node_embed:
+            _out = torch.zeros(len(combined_data), 1, device=self.device)
+        else:
+            _out = None
+
         if self.main_loss == "semi-svdd":
             _out_h = torch.zeros(
                 len(combined_data), self.out_embed_d, device=self.device
             )
         else:
-            _out_h = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
+            if not return_node_embed:
+                _out_h = torch.zeros(
+                    len(gid_batch), self.out_embed_d, device=self.device
+                )
+            else:
+                # Note: Only support single graph forward for evaluation which gets node embeddings
+                print(f"Graph Size: {combined_data[0][0].shape[0]}")
+                _out_h = torch.zeros(
+                    len(gid_batch),
+                    combined_data[0][0].shape[0],
+                    self.out_embed_d,
+                    device=self.device,
+                )
         # print(f'size: {len(combined_data)}')
         for i, (g_data, g_label) in enumerate(zip(combined_data, combined_labels)):
             # print(f'trace_id: {gid_batch[i]}')
             # print(f'g_data: {g_data}')
             # print(f'self.dataset[i]: {self.dataset[806]}')
 
-            h = self.het_node_conv(g_data, source_types=self.source_types)
+            h = self.het_node_conv(
+                g_data,
+                source_types=self.source_types,
+                return_node_embed=return_node_embed,
+            )
             h = self.embed_act(h)
 
             # print(f'h: {h}')
@@ -202,9 +221,9 @@ class HetGCN_11(nn.Module):
             else:
                 if g_label == 0:
                     _out_h[i] = h
-
-            h = self.final_fc(h)
-            _out[i] = h
+            if not return_node_embed:
+                h = self.final_fc(h)
+                _out[i] = h
         # print(f'combined_labels: {combined_labels.shape}')
         # print(f'_out: {_out.shape}')
         # print(f'combined_labels: {combined_labels}')
@@ -257,7 +276,9 @@ class HetGCN_11(nn.Module):
             elif self.eval_method == "bce":
                 scores = bce_scores
             elif self.eval_method == "both":
-                scores = bce_scores.view(-1,) * svdd_score.view(
+                scores = bce_scores.view(
+                    -1,
+                ) * svdd_score.view(
                     -1,
                 )
         if verbose:
@@ -299,7 +320,7 @@ class HetGCN_11(nn.Module):
         dist = torch.sum(torch.square(_batch_out_resahpe - hypersphere_center), 1)
 
         if self.main_loss == "semi-svdd" and self.wloss is not None:
-            print('calc semi-svdd ..')
+            print("calc semi-svdd ..")
             dist = torch.where(
                 labels == 0, dist, self.eta * ((dist + self.eps) ** labels.float())
             )
@@ -331,7 +352,9 @@ class HetGCN_11(nn.Module):
                 ga_batch_mask = ga_methods == 0
                 n_ = ga_mask.sum()
                 ga_outputs = torch.cat([outputs[ga_mask], outputs[ga_batch_mask][:n_]])
-                ga_labels = torch.cat([supervised_labels[ga_mask], supervised_labels[ga_batch_mask][:n_]])
+                ga_labels = torch.cat(
+                    [supervised_labels[ga_mask], supervised_labels[ga_batch_mask][:n_]]
+                )
 
                 # print(f'ga_outputs: {ga_outputs}')
                 # print(f'ga_labels: {ga_labels}')
