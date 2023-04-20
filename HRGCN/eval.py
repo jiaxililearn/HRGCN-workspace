@@ -35,7 +35,7 @@ def evaluate_node(model, data_root_dir, ignore_weight, include_edge_type, device
             .to(device)
         )
         # 2. filter on0/1 nodes
-        _mask = (_node_labels == 0) or (_node_labels == 1)
+        _mask = (_node_labels <= 1)
         node_labels = _node_labels[_mask]
         node_embed = _node_embed[0][_mask]
 
