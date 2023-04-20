@@ -1,3 +1,4 @@
+from tqdm import tqdm
 import torch
 from sklearn.metrics import roc_curve, auc, precision_recall_curve
 from data_loader import HetGCNEventGraphDataset
@@ -24,7 +25,7 @@ def evaluate_node(model, data_root_dir, ignore_weight, include_edge_type, device
     model.eval()
     # set validation dataset
     model.dataset = valid_dataset
-    for i in range(dataset_size):
+    for i in tqdm(range(dataset_size)):
         # 1. get node embeddings
         _, _, _node_embed = model([i], train=False, return_node_embed=True)
         _node_embed = _node_embed[0]

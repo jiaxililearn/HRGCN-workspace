@@ -195,7 +195,7 @@ class HetGCN_11(nn.Module):
                 )
             else:
                 # Note: Only support single graph forward for evaluation which gets node embeddings
-                print(f"Graph Size: {combined_data[0][0].shape[0]}")
+                # print(f"Graph Size: {combined_data[0][0].shape[0]}")
                 _out_h = torch.zeros(
                     len(gid_batch),
                     combined_data[0][0].shape[0],
