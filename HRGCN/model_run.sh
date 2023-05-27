@@ -12,8 +12,8 @@ python main.py \
 --num_train 820 \
 --source_types 0,1,2,3,4,5,6,7,8,9 \
 --sampling_size 820 \
---batch_s 41 \
---mini_batch_s 41 \
+--batch_s 4 \
+--mini_batch_s 4 \
 --unzip False \
 --s3_stage True \
 --split_data False \
@@ -28,8 +28,8 @@ python main.py \
 --dataset_id 0 \
 --input_type batch \
 --feature_size 16 \
---out_embed_s 256 \
---hidden_channels 256 \
+--out_embed_s 64 \
+--hidden_channels 64 \
 --num_hidden_conv_layers 1 \
 --main_loss svdd \
 --weighted_loss ignore \
