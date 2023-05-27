@@ -159,9 +159,9 @@ class HetGCNConv_11(MessagePassing):
 
             # Aggregate on Edge neighbourhoods.
             het_h_embeddings_edge_types = torch.cat(het_h_embeddings_edge_types, 1)
-            print(
-                f"het_h_embeddings_edge_types shape: {het_h_embeddings_edge_types.shape}"
-            )
+            # print(
+            #     f"het_h_embeddings_edge_types shape: {het_h_embeddings_edge_types.shape}"
+            # )
             het_h_embeddings_edge_types = self.edge_type_agg(
                 het_h_embeddings_edge_types
             )
