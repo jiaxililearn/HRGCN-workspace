@@ -7,10 +7,10 @@ pip install torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geo
 
 python main.py \
 --sagemaker False \
---num_node_types 3 \
+--num_node_types 10 \
 --num_edge_types 11 \
 --num_train 820 \
---source_types 0,1,2 \
+--source_types 0,1,2,3,4,5,6,7,8,9 \
 --sampling_size 820 \
 --batch_s 41 \
 --mini_batch_s 41 \
@@ -28,13 +28,13 @@ python main.py \
 --dataset_id 0 \
 --input_type batch \
 --feature_size 16 \
---out_embed_s 300 \
---hidden_channels 300 \
+--out_embed_s 256 \
+--hidden_channels 256 \
 --num_hidden_conv_layers 1 \
 --main_loss svdd \
 --weighted_loss ignore \
 --loss_weight 0 \
 --eval_method svdd \
---model_path ../models/model_save_dgraph_base \
---data_path ../dataset \
+--model_path ../models/model_save_dgraph_base_feat_1 \
+--data_path ../dataset/data_type_3/ \
 --job_prefix test
