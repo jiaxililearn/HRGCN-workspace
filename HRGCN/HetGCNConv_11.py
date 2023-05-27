@@ -33,12 +33,12 @@ class HetGCNConv_11(MessagePassing):
         self.num_edge_types = num_edge_types
         self.ablation = ablation
 
-        if self.ablation == 'no-edge-relation':
+        if self.ablation == "no-edge-relation":
             self.num_edge_types = 1
-        elif self.ablation == 'no-node-relation':
+        elif self.ablation == "no-node-relation":
             self.num_src_types = 1
             # self.num_node_types = 1
-        elif self.ablation == 'no-edge-node-relation':
+        elif self.ablation == "no-edge-node-relation":
             self.num_edge_types = 1
             self.num_src_types = 1
             # self.num_node_types = 1
@@ -66,7 +66,8 @@ class HetGCNConv_11(MessagePassing):
         # hidden_conv_layers[n_hidden][etype][ntype]
 
         self.fc_het_layer = torch.nn.Linear(
-            hidden_channels * self.num_node_types * self.num_src_types * self.num_edge_types,
+            hidden_channels * self.num_node_types * self.num_src_types,
+            # * self.num_edge_types
             out_channels,
             bias=True,
         )
@@ -97,15 +98,16 @@ class HetGCNConv_11(MessagePassing):
 
         het_h_embeddings = []
         for ntype in range(self.num_node_types * self.num_src_types):
+            het_h_embeddings_edge_types = []
             for etype in range(self.num_edge_types):
                 # print(f'neighbour type: {ntype} - {etype}')
 
                 ## A3 - study when edge/node relation is removed
-                if self.ablation == 'no-edge-relation':
+                if self.ablation == "no-edge-relation":
                     edge_type = None
-                elif self.ablation == 'no-node-relation':
+                elif self.ablation == "no-node-relation":
                     source_types = None
-                elif self.ablation == 'no-edge-node-relation':
+                elif self.ablation == "no-edge-node-relation":
                     source_types = None
                     edge_type = None
 
@@ -147,15 +149,19 @@ class HetGCNConv_11(MessagePassing):
                         )
                         content_h = self.relu(content_h)
 
-                het_h_embeddings.append(content_h)
+                het_h_embeddings_edge_types.append(content_h)
+
+            # Aggregate on Edge neighbourhoods. I.e. max
+            het_h_embeddings_edge_types, _ = torch.max(
+                torch.cat(het_h_embeddings_edge_types, 0), dim=0
+            )
+            het_h_embeddings.append(het_h_embeddings_edge_types)
 
         # print(f'het_h_embeddings: {het_h_embeddings}')
         combined_het_embedding = torch.cat(het_h_embeddings, 1).view(
             node_feature.shape[0],
-            self.hidden_channels
-            * self.num_node_types
-            * self.num_src_types
-            * self.num_edge_types,
+            self.hidden_channels * self.num_node_types * self.num_src_types
+            # * self.num_edge_types,
         )
 
         if not return_node_embed:
@@ -226,7 +232,6 @@ class HetGCNConv_11(MessagePassing):
             return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
 
         else:
-
             if len(node_types[ntype]) == 0:
                 return ntype, None, None
 
