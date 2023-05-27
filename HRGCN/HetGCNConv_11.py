@@ -66,7 +66,7 @@ class HetGCNConv_11(MessagePassing):
         # hidden_conv_layers[n_hidden][etype][ntype]
 
         self.edge_type_agg = torch.nn.Linear(
-            self.num_edge_types,
+            hidden_channels * self.num_edge_types,
             out_channels,
             bias=True,
         )
@@ -157,12 +157,15 @@ class HetGCNConv_11(MessagePassing):
 
                 het_h_embeddings_edge_types.append(content_h)
 
-            # Aggregate on Edge neighbourhoods. I.e. max
+            # Aggregate on Edge neighbourhoods.
             het_h_embeddings_edge_types = torch.cat(het_h_embeddings_edge_types, 1)
-            het_h_embeddings_edge_types = self.edge_type_agg(het_h_embeddings_edge_types)
             print(
                 f"het_h_embeddings_edge_types shape: {het_h_embeddings_edge_types.shape}"
             )
+            het_h_embeddings_edge_types = self.edge_type_agg(
+                het_h_embeddings_edge_types
+            )
+
             het_h_embeddings.append(het_h_embeddings_edge_types)
 
         # print(f'het_h_embeddings: {het_h_embeddings}')
