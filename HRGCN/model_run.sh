@@ -20,7 +20,7 @@ python main.py \
 --ignore_weight True \
 --test_set True \
 --save_model_freq 2 \
---lr 0.0001 \
+--lr 0.00001 \
 --train_iter_n 200 \
 --trainer_version 2 \
 --model_version 11 \
