@@ -302,9 +302,9 @@ def construct_dgl_dataset(mask, name, save=False):
 
 # %%
 
-# train_graphs, train_data, train_feature, train_node_labels = construct_dgl_dataset(
-#     train_mask, name="train", save=True
-# )
+train_graphs, train_data, train_feature, train_node_labels = construct_dgl_dataset(
+    train_mask, name="train", save=True
+)
 
 valid_graphs, valid_data, valid_feature, valid_node_labels = construct_dgl_dataset(
     valid_mask, name="valid", save=True
