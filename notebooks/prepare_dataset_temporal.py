@@ -13,9 +13,12 @@ from dgl import save_graphs, load_graphs
 
 # %% [markdown]
 # # Load Data
+import sys
 
 # %%
-data_path = "/Users/jl102430/Documents/study/anomaly_detection/data/dynamic/DGraph/DGraphFin/dgraphfin.npz"
+data_path = sys.argv[
+    1
+]  # "/Users/jl102430/Documents/study/anomaly_detection/data/dynamic/DGraph/DGraphFin/dgraphfin.npz"
 
 
 # %%
@@ -291,7 +294,7 @@ def construct_dgl_dataset(mask, name, save=False):
 
     if save:
         output_prefix = "../dataset/dgl_format_1"
-        
+
         save_graphs(f"{output_prefix}/dgraph_{name}_dgl.bin", g_list, node_labels)
         print(f"Save to {output_prefix}")
     return g_list, _data, _node_feature, graph_data_dict
