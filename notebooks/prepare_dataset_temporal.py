@@ -189,7 +189,7 @@ def create_dgl_graph(graph_data_dict, num_nodes_dict, node_features):
     g = dgl.heterograph(graph_data_dict, num_nodes_dict=num_nodes_dict)
 
     for ntype in node_features["node_type"].unique():
-        g.nodes[f"v_{ntype}"].data["features"] = torch.tensor(
+        g.nodes[f"vtype_{ntype}"].data["features"] = torch.tensor(
             node_features[node_features["node_type"] == ntype][
                 [f"feat_{i}" for i in range(1, 17)]
             ].values
@@ -200,7 +200,7 @@ def create_dgl_graph(graph_data_dict, num_nodes_dict, node_features):
 def resolve_lables_by_types(node_features):
     node_labels = {}
     for ntype in node_features["node_type"].unique():
-        node_labels[f"v_{ntype}"] = torch.tensor(
+        node_labels[f"vtype_{ntype}"] = torch.tensor(
             node_features[node_features["node_type"] == ntype]["y"].values
         )
     return node_labels
@@ -258,7 +258,7 @@ def construct_dgl_dataset(mask, name, save=False, save_interval=10):
     for _i, (_t, _n) in (
         _node_feature.groupby("node_type")[["node_id"]].count().reset_index().iterrows()
     ):
-        num_nodes_dict[f"v_{_t}"] = _n
+        num_nodes_dict[f"vtype_{_t}"] = _n
 
     output_prefix = "../dataset/dgl_format_1"
 
@@ -292,7 +292,7 @@ def construct_dgl_dataset(mask, name, save=False, save_interval=10):
 
             graph_data_dict = {}
 
-        graph_data_dict[(f"v_{src_type}", f"e_{edge_type}", f"v_{dst_type}")] = (
+        graph_data_dict[(f"vtype_{src_type}", f"etype_{edge_type}", f"vtype_{dst_type}")] = (
             torch.tensor(src_list),
             torch.tensor(dst_list),
         )
