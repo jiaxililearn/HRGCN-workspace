@@ -206,7 +206,7 @@ def resolve_lables_by_types(node_features):
 
 
 # %%
-def construct_dgl_dataset(mask, name, save=False):
+def construct_dgl_dataset(mask, name, save=False, save_interval=10):
     """
     Train/Val/Test needs to be re-indexed
     """
@@ -259,6 +259,8 @@ def construct_dgl_dataset(mask, name, save=False):
     ):
         num_nodes_dict[f"v_{_t}"] = _n
 
+    output_prefix = "../dataset/dgl_format_1"
+
     g_list = []
     graph_data_dict = {}
     current_ts = -1
@@ -278,6 +280,16 @@ def construct_dgl_dataset(mask, name, save=False):
                 node_features=_node_feature,
             )
             g_list.append(g)
+
+            # save the graph list
+            if save:
+                if edge_timestamp % save_interval == 0:
+                    save_by_parts(
+                        g_list, node_labels, edge_timestamp, name, output_prefix
+                    )
+                    g_list = []
+                    print(f"Save to {output_prefix}")
+
             graph_data_dict = {}
 
         graph_data_dict[(f"v_{src_type}", f"e_{edge_type}", f"v_{dst_type}")] = (
@@ -292,12 +304,19 @@ def construct_dgl_dataset(mask, name, save=False):
         )
         g_list.append(g)
 
-    if save:
-        output_prefix = "../dataset/dgl_format_1"
-
-        save_graphs(f"{output_prefix}/dgraph_{name}_dgl.bin", g_list, node_labels)
-        print(f"Save to {output_prefix}")
+        if save:
+            save_by_parts(g_list, node_labels, edge_timestamp, name, output_prefix)
+            print(f"Save to {output_prefix}")
     return g_list, _data, _node_feature, graph_data_dict
+
+
+def save_by_parts(g_list, node_labels, edge_timestamp, name, output_prefix):
+    part_num = str(edge_timestamp).zfill(3)
+    save_graphs(
+        f"{output_prefix}/dgraph_{name}_dgl.bin.{part_num}", g_list, node_labels
+    )
+    g_list = []
+    print(f"Save to {output_prefix}")
 
 
 # %%
