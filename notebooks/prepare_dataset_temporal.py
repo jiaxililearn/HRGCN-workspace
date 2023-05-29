@@ -20,6 +20,7 @@ data_path = sys.argv[
     1
 ]  # "/Users/jl102430/Documents/study/anomaly_detection/data/dynamic/DGraph/DGraphFin/dgraphfin.npz"
 
+save_freq = int(sys.argv[2])
 
 # %%
 data = np.load(data_path)
@@ -322,15 +323,15 @@ def save_by_parts(g_list, node_labels, edge_timestamp, name, output_prefix):
 # %%
 
 train_graphs, train_data, train_feature, train_node_labels = construct_dgl_dataset(
-    train_mask, name="train", save=True
+    train_mask, name="train", save=True, save_interval=save_freq
 )
 
 valid_graphs, valid_data, valid_feature, valid_node_labels = construct_dgl_dataset(
-    valid_mask, name="valid", save=True
+    valid_mask, name="valid", save=True, save_interval=save_freq
 )
 
 test_graphs, test_data, test_feature, test_node_labels = construct_dgl_dataset(
-    test_mask, name="test", save=True
+    test_mask, name="test", save=True, save_interval=save_freq
 )
 # len(train_graphs)
 # len(train_graphs)
