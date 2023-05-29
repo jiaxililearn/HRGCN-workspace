@@ -286,10 +286,9 @@ def construct_dgl_dataset(mask, name, save=False, save_interval=10):
             if save:
                 if edge_timestamp % save_interval == 0:
                     save_by_parts(
-                        g_list, node_labels, edge_timestamp, name, output_prefix
+                        g_list, None, edge_timestamp, name, output_prefix
                     )
                     g_list = []
-                    print(f"Save to {output_prefix}")
 
             graph_data_dict = {}
 
@@ -306,9 +305,10 @@ def construct_dgl_dataset(mask, name, save=False, save_interval=10):
         g_list.append(g)
 
         if save:
-            save_by_parts(g_list, node_labels, edge_timestamp, name, output_prefix)
-            print(f"Save to {output_prefix}")
-    return g_list, _data, _node_feature, graph_data_dict
+            save_by_parts(g_list, None, edge_timestamp, name, output_prefix)
+
+    torch.save(node_labels, f"{output_prefix}/dgraph_{name}_dgl_node_labels.pt")
+    return g_list, _data, _node_feature, node_labels
 
 
 def save_by_parts(g_list, node_labels, edge_timestamp, name, output_prefix):
@@ -337,7 +337,7 @@ test_graphs, test_data, test_feature, test_node_labels = construct_dgl_dataset(
 # len(train_graphs)
 
 # len(train_graphs)
-
+# python prepare_dataset_temporal.py ../dataset/raw/dgraphfin.npz 10
 # %%
 
 
