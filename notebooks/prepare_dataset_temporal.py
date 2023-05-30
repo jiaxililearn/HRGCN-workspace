@@ -192,7 +192,8 @@ def create_dgl_graph(graph_data_dict, num_nodes_dict, node_features):
         g.nodes[f"vtype_{ntype}"].data["features"] = torch.tensor(
             node_features[node_features["node_type"] == ntype][
                 [f"feat_{i}" for i in range(1, 17)]
-            ].values
+            ].values,
+            dtype=torch.float32,
         )
     return g
 
@@ -201,7 +202,8 @@ def resolve_lables_by_types(node_features):
     node_labels = {}
     for ntype in node_features["node_type"].unique():
         node_labels[f"vtype_{ntype}"] = torch.tensor(
-            node_features[node_features["node_type"] == ntype]["y"].values
+            node_features[node_features["node_type"] == ntype]["y"].values,
+            dtype=torch.float32,
         )
     return node_labels
 
@@ -295,8 +297,8 @@ def construct_dgl_dataset(mask, name, save=False, save_interval=10):
         graph_data_dict[
             (f"vtype_{src_type}", f"etype_{edge_type}", f"vtype_{dst_type}")
         ] = (
-            torch.tensor(src_list),
-            torch.tensor(dst_list),
+            torch.tensor(src_list, dtype=torch.int32),
+            torch.tensor(dst_list, dtype=torch.int32),
         )
         current_ts = edge_timestamp
 
