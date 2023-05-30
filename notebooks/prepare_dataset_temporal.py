@@ -285,14 +285,14 @@ def construct_dgl_dataset(mask, name, save=False, save_interval=10):
             # save the graph list
             if save:
                 if edge_timestamp % save_interval == 0:
-                    save_by_parts(
-                        g_list, None, edge_timestamp, name, output_prefix
-                    )
+                    save_by_parts(g_list, None, edge_timestamp, name, output_prefix)
                     g_list = []
 
             graph_data_dict = {}
 
-        graph_data_dict[(f"vtype_{src_type}", f"etype_{edge_type}", f"vtype_{dst_type}")] = (
+        graph_data_dict[
+            (f"vtype_{src_type}", f"etype_{edge_type}", f"vtype_{dst_type}")
+        ] = (
             torch.tensor(src_list),
             torch.tensor(dst_list),
         )
@@ -308,6 +308,9 @@ def construct_dgl_dataset(mask, name, save=False, save_interval=10):
             save_by_parts(g_list, None, edge_timestamp, name, output_prefix)
 
     torch.save(node_labels, f"{output_prefix}/dgraph_{name}_dgl_node_labels.pt")
+    with open(f"{output_prefix}/dgraph_{name}_dgl_num_nodes_dict.json", "w") as fout:
+        fout.write(json.dumps(num_nodes_dict))
+        fout.write("\n")
     return g_list, _data, _node_feature, node_labels
 
 
