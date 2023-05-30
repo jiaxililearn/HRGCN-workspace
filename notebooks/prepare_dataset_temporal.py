@@ -262,6 +262,8 @@ def construct_dgl_dataset(mask, name, save=False, save_interval=10):
 
     output_prefix = "../dataset/dgl_format_1"
 
+    print(f"num_nodes_dict: {num_nodes_dict}")
+
     g_list = []
     graph_data_dict = {}
     current_ts = -1
