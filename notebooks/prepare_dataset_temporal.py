@@ -22,6 +22,7 @@ data_path = sys.argv[
 
 save_freq = int(sys.argv[2])
 
+output_prefix = "../dataset/dgl_format_1"
 # %%
 data = np.load(data_path)
 data
@@ -76,6 +77,9 @@ node_feature = pd.DataFrame(X, columns=[f"feat_{i}" for i in range(X.shape[1])])
 node_feature["y"] = y
 node_feature = node_feature.reset_index().rename(columns={"index": "node_id"})
 node_type_map = resolve_node_type(node_feature)
+
+with open(f"{output_prefix}/dgraph_num_type_dict.json", 'w') as fout:
+    fout.write(json.dumps(node_type_map))
 
 node_feature
 
@@ -262,7 +266,7 @@ def construct_dgl_dataset(mask, name, save=False, save_interval=10):
     ):
         num_nodes_dict[f"vtype_{_t}"] = _n
 
-    output_prefix = "../dataset/dgl_format_1"
+    
 
     print(f"num_nodes_dict: {num_nodes_dict}")
 
